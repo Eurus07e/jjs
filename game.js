@@ -424,5 +424,9 @@ startButton.addEventListener("click", handleStart);
 
 resize();
 updateScore();
-showOverlay("开始游戏", "趣味老蒋跑酷，看看你能取得多少优势！", "开始");
+if (new URLSearchParams(window.location.search).get("play") === "1") {
+  reset();
+} else {
+  showOverlay("开始游戏", "趣味老蒋跑酷，看看你能取得多少优势！", "开始");
+}
 requestAnimationFrame(frame);
