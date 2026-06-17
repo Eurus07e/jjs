@@ -17,11 +17,30 @@ const audioSources = {
   flourish: "./assets/audio/bobo-shengji.m4a",
   fail: "./assets/audio/wobu-mingbai.m4a",
 };
-const audioPreloads = Object.values(audioSources).map((src) => {
-  const audio = new Audio(src);
-  audio.preload = "auto";
-  return audio;
-});
+const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+const audioContext = AudioContextClass ? new AudioContextClass({ latencyHint: "interactive" }) : null;
+const audioBuffers = new Map();
+const fallbackAudios = Object.fromEntries(
+  Object.entries(audioSources).map(([key, src]) => {
+    const audio = new Audio(src);
+    audio.preload = "auto";
+    audio.load();
+    return [key, audio];
+  })
+);
+const audioReadyPromise = audioContext
+  ? Promise.all(
+      Object.entries(audioSources).map(async ([key, src]) => {
+        try {
+          const response = await fetch(src);
+          const arrayBuffer = await response.arrayBuffer();
+          const buffer = await audioContext.decodeAudioData(arrayBuffer.slice(0));
+          audioBuffers.set(key, buffer);
+        } catch (_) {}
+      })
+    )
+  : Promise.resolve();
+let audioPrimed = false;
 const runnerHeadImage = new Image();
 runnerHeadImage.src = "./assets/images/character-reference-close.png";
 
@@ -112,26 +131,67 @@ function audioPlaybackRate() {
   return 1 + speedProgress() * 0.35;
 }
 
-function playAudio(src) {
-  const audio = new Audio(src);
+function ensureAudioContext() {
+  if (audioContext && audioContext.state === "suspended") {
+    audioContext.resume().catch(() => {});
+  }
+}
+
+function primeAudio() {
+  if (audioPrimed) return;
+  audioReadyPromise.catch(() => {});
+  Object.values(fallbackAudios).forEach((audio) => audio.load());
+  if (!audioContext) {
+    audioPrimed = true;
+    return;
+  }
+  ensureAudioContext();
+  const source = audioContext.createBufferSource();
+  const gain = audioContext.createGain();
+  source.buffer = audioContext.createBuffer(1, 1, audioContext.sampleRate);
+  gain.gain.value = 0;
+  source.connect(gain);
+  gain.connect(audioContext.destination);
+  source.start(audioContext.currentTime);
+  source.onended = () => {
+    source.disconnect();
+    gain.disconnect();
+  };
+  audioPrimed = true;
+}
+
+function playAudio(key) {
+  if (audioContext && audioBuffers.has(key)) {
+    ensureAudioContext();
+    const source = audioContext.createBufferSource();
+    const gain = audioContext.createGain();
+    source.buffer = audioBuffers.get(key);
+    source.playbackRate.value = audioPlaybackRate();
+    gain.gain.value = 0.9;
+    source.connect(gain);
+    gain.connect(audioContext.destination);
+    source.start(audioContext.currentTime);
+    source.onended = () => {
+      source.disconnect();
+      gain.disconnect();
+    };
+    return;
+  }
+  const audio = fallbackAudios[key].cloneNode(true);
   audio.playbackRate = audioPlaybackRate();
   audio.play().catch(() => {});
-  audio.addEventListener("ended", () => {
-    audio.remove();
-  });
-  return audio;
 }
 
 function playVoice() {
-  playAudio(audioSources.jump);
+  playAudio("jump");
 }
 
 function playFlourishVoice() {
-  playAudio(audioSources.flourish);
+  playAudio("flourish");
 }
 
 function playFailVoice() {
-  playAudio(audioSources.fail);
+  playAudio("fail");
 }
 
 function nextObstacleDelay() {
@@ -401,10 +461,12 @@ function frame(time) {
 }
 
 function handleStart() {
+  primeAudio();
   if (!running) reset();
 }
 
 function handleJumpAction() {
+  primeAudio();
   if (!running) return;
   jump();
 }
@@ -413,6 +475,7 @@ window.addEventListener("resize", resize);
 window.addEventListener("keydown", (event) => {
   if (event.code === "Space") {
     event.preventDefault();
+    primeAudio();
     if (running) {
       jump();
     }
@@ -425,6 +488,7 @@ startButton.addEventListener("click", handleStart);
 resize();
 updateScore();
 if (new URLSearchParams(window.location.search).get("play") === "1") {
+  primeAudio();
   reset();
 } else {
   showOverlay("开始游戏", "趣味老蒋跑酷，看看你能取得多少优势！", "开始");
