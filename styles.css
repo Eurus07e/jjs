@@ -1,0 +1,176 @@
+:root {
+  --page: #f4f4f1;
+  --frame: #ffffff;
+  --frame-edge: #d7d7d2;
+  --track: #f2f2f2;
+  --track-edge: #c8c8c3;
+  --text: #303030;
+  --muted: #7e7e7a;
+  --accent: #222222;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--page);
+  color: var(--text);
+  font-family:
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "Microsoft YaHei",
+    system-ui,
+    sans-serif;
+}
+
+button {
+  font: inherit;
+}
+
+.page {
+  width: min(100%, 1780px);
+  margin: 0 auto;
+  padding: 72px 24px 64px;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 34px;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(34px, 4vw, 56px);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.hero p {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: clamp(16px, 1.8vw, 24px);
+}
+
+.game-card {
+  padding: 34px;
+  border: 1px solid var(--frame-edge);
+  border-radius: 20px;
+  background: var(--frame);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.06);
+}
+
+.game-frame {
+  position: relative;
+  width: min(100%, 1620px);
+  aspect-ratio: 16 / 8;
+  margin: 0 auto;
+  border: 4px solid var(--track-edge);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--track);
+}
+
+#gameCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #f8f8f6;
+}
+
+.scoreboard {
+  position: absolute;
+  top: 22px;
+  right: 24px;
+  z-index: 2;
+  text-align: right;
+  color: #6f6f6a;
+  font-size: clamp(20px, 2vw, 28px);
+  font-weight: 600;
+  line-height: 1.45;
+  pointer-events: none;
+}
+
+.scoreboard p {
+  margin: 0;
+}
+
+.scoreboard strong {
+  color: #4a4a46;
+  font-weight: 700;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  background: rgba(248, 248, 246, 0.8);
+}
+
+.overlay.is-hidden {
+  display: none;
+}
+
+.overlay-panel {
+  text-align: center;
+  padding: 24px 32px;
+}
+
+.overlay-panel h2 {
+  margin: 0;
+  font-size: clamp(28px, 3vw, 42px);
+  color: #383835;
+}
+
+.overlay-panel p {
+  max-width: 520px;
+  margin: 14px auto 0;
+  color: var(--muted);
+  font-size: clamp(15px, 1.5vw, 20px);
+  line-height: 1.6;
+}
+
+.overlay-panel button {
+  margin-top: 20px;
+  min-width: 120px;
+  min-height: 44px;
+  padding: 0 22px;
+  border: 1px solid #333;
+  border-radius: 999px;
+  background: #2e2e2c;
+  color: #fff;
+  cursor: pointer;
+}
+
+.overlay-panel button:hover {
+  background: #20201f;
+}
+
+@media (max-width: 900px) {
+  .page {
+    padding: 34px 12px 28px;
+  }
+
+  .game-card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .game-frame {
+    width: 100%;
+  }
+
+  .scoreboard {
+    top: 14px;
+    right: 14px;
+    font-size: 18px;
+  }
+}

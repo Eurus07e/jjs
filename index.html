@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>优势跑酷</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <h1>优势跑酷</h1>
+        <p>按空格键起跳</p>
+      </header>
+
+      <section class="game-card" aria-label="游戏区域">
+        <div class="game-frame">
+          <canvas id="gameCanvas" aria-label="优势跑酷游戏画布"></canvas>
+
+          <div class="scoreboard">
+            <p>得分：<strong id="scoreValue">0</strong></p>
+            <p>最高：<strong id="bestValue">0</strong></p>
+          </div>
+
+          <div class="overlay" id="overlay">
+            <div class="overlay-panel">
+              <h2 id="overlayTitle">开始游戏</h2>
+              <p id="overlayText">趣味老蒋跑酷，看看你能取得多少优势！</p>
+              <button id="startButton" type="button">开始</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="./game.js" defer></script>
+  </body>
+</html>
